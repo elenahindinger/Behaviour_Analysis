@@ -8,9 +8,10 @@ import numpy as np
 ''' ENTER PARAMETERS HERE '''
 
 plate_size = 96
-group_number = 4  # ENTER NUMBER OF GROUPS
-names_of_groups = ['gr', 'het', 'gr fluox', 'het fluox']  # ENTER GROUP NAMES
-savename = r'P:/randomization lists/28-06-17_DanioVision_matched_list_gr_het_longterm.csv'  # ENTER SAVE NAME AND LOCATION
+group_number = 8  # ENTER NUMBER OF GROUPS
+names_of_groups = ['gr dmso', 'gr 4.6 uM', 'gr 10 uM', 'gr 20 uM',
+                   'het dmso', 'het 4.6 uM', 'het 10 uM', 'het 20 uM']  # ENTER GROUP NAMES
+savename = r'P:/randomization lists/25-07-17_DanioVision_matched_list_fluoxetine_longterm_repeat.csv'  # ENTER SAVE NAME AND LOCATION
 
 
 ''' FROM HERE ON DO NOT NEED TO MODIFY '''
@@ -39,9 +40,9 @@ random.shuffle(all_groups)
 
 df = pd.DataFrame()
 df['condition'] = all_groups
-if plate_size == '96':
+if plate_size == 96:
     df['wells'] = wells_96
-elif plate_size == '48':
+elif plate_size == 48:
     df['wells'] = wells_48
 else:
     print 'Sorry, this plate size is not supported.'

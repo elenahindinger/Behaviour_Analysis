@@ -1,5 +1,3 @@
-__author__ = 'Elena Maria Daniela Hindinger'
-
 from __future__ import division
 import pandas as pd
 import numpy as np
@@ -12,6 +10,8 @@ import matplotlib.ticker as ticker
 from scipy import stats
 import seaborn as sns
 from behavioural_analysis_script import *
+
+__author__ = 'Elena Maria Daniela Hindinger'
 
 def readin(filepath):
     ''' This function reads input data if in txt format. '''

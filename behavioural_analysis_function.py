@@ -1,5 +1,3 @@
-__author__ = 'Elena Maria Daniela Hindinger'
-
 from __future__ import division
 import pandas as pd
 import numpy as np
@@ -14,6 +12,8 @@ import seaborn as sns
 import behavioural_analysis_formulas as bhf
 import behavioural_analysis_plots as bhp
 from behavioural_analysis_script import *
+
+__author__ = 'Elena Maria Daniela Hindinger'
 
 
 def analysis(parent_folder, look_up_table, name_of_experiment, names_of_groups,

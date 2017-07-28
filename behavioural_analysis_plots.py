@@ -1,5 +1,3 @@
-__author__ = 'Elena Maria Daniela Hindinger'
-
 from __future__ import division
 import pandas as pd
 import numpy as np
@@ -13,6 +11,8 @@ from scipy import stats
 import seaborn as sns
 import behavioural_analysis_formulas as bhf
 from behavioural_analysis_script import *
+
+__author__ = 'Elena Maria Daniela Hindinger'
 
 def strains(dataframe, n, length, outdir, name):
     df = dataframe.copy()
