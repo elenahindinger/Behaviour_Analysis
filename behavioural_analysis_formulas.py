@@ -13,14 +13,50 @@ from behavioural_analysis_script import *
 
 __author__ = 'Elena Maria Daniela Hindinger'
 
+# -*- coding: utf-8 -*-
+"""
+Created on Sat Jul 01 13:59:40 2017
+
+@author: ehindinger
+"""
+
+from __future__ import division
+import pandas as pd
+import numpy as np
+import os
+import csv
+import itertools as it
+import natsort as nat
+from matplotlib import pyplot as plt
+import matplotlib.ticker as ticker
+from scipy import stats
+import seaborn as sns
+
+
 def readin(filepath):
     ''' This function reads input data if in txt format. '''
     datalist = []
     with open(filepath, 'rb') as csvfile:
-        csvreader = csv.reader((x.replace('\0', '') for x in csvfile), delimiter=';')
+        csvreader = csv.reader((x.replace('\0', '') for x in csvfile),
+                               delimiter=';')
         for row in it.islice(csvreader, 35, None):
             datalist.append(row)
     return datalist
+
+
+def setup(ax, ticksize=24):
+    ''' This function determines parameters for the following graphs, such as
+    determining labelsize, tick positions, padding between ticks and labels etc. '''
+    ax.xaxis.set_ticks_position('bottom')
+    ax.tick_params(labelsize=ticksize)
+    ax.tick_params(which='major', width=1.00, length=5, pad=5)
+    ax.tick_params(which='minor', width=0.75, length=2.5)
+    ax.tick_params(which='both', right='off')
+    ax.yaxis.set_ticks_position('left')
+    ax.tick_params(which='major', width=1.00, length=5, pad=5)
+    ax.tick_params(which='minor', width=0.75, length=2.5)
+    ax.xaxis.labelpad = 30
+    ax.yaxis.labelpad = 30
 
 
 def lookup_dict(csv_file, fish, output):
@@ -38,66 +74,6 @@ def lookup_dict(csv_file, fish, output):
             if k == fish:
                 return v
     else:
-        assert False
-
-
-def split_by_group(dataframe, names_list, group_number, output=None):
-    df = dataframe.copy()
-    gb = df.groupby('genotype')  # group by genotype
-    gb.groups
-    if group_number == 2:
-        ''' Names list should be in format group1, group2 '''
-        gr = gb.get_group(names_list[0])
-        het = gb.get_group(names_list[1])
-        both = pd.concat([gr, het])
-        return both
-    elif group_number == 4:
-        ''' Names list should be in format gr, het, WIK-TL, TL '''
-        gr = gb.get_group(names_list[0])
-        het = gb.get_group(names_list[1])
-        wiktl = gb.get_group(names_list[2])
-        tl = gb.get_group(names_list[3])
-        normal = pd.concat([gr, het]) # concatenate all tls
-        strains = pd.concat([wiktl, tl])
-        hetstrains = pd.concat([het, wiktl, tl])
-        # concatenate all tlns
-        if output == 'normal':
-            return normal
-        elif output == 'strains':
-            return strains
-        elif output == 'het with strains':
-            return hetstrains
-        else:
-            print 'Sorry, this output is not supported.'
-            assert False
-    elif group_number == 8:
-        ''' Names list should be in format gr dmso, gr con1, gr con2, gr con3,
-        het dmso, het con1, het con2, het con3 '''
-        gr_dmso = gb.get_group(names_list[0])
-        gr_con1 = gb.get_group(names_list[1])
-        gr_con2 = gb.get_group(names_list[2])
-        gr_con3 = gb.get_group(names_list[3])
-        het_dmso = gb.get_group(names_list[4])
-        het_con1 = gb.get_group(names_list[5])
-        het_con2 = gb.get_group(names_list[6])
-        het_con3 = gb.get_group(names_list[7])
-        dmso = pd.concat([gr_dmso, het_dmso])  # concatenate all tls
-        con1 = pd.concat([gr_dmso, het_dmso, gr_con1, het_con1])
-        con2 = pd.concat([gr_dmso, het_dmso, gr_con2, het_con2])
-        con3 = pd.concat([gr_dmso, het_dmso, gr_con3, het_con3])  # concatenate all tlns
-        if output == 'dmso':
-            return dmso
-        elif output == 'con1':
-            return con1
-        elif output == 'con2':
-            return con2
-        elif output == 'con3':
-            return con3
-        else:
-            print 'Sorry, this output is not supported.'
-            assert False
-    else:
-        print 'Sorry, this number of groups is not supported.'
         assert False
 
 
@@ -125,38 +101,45 @@ def rearrange(dataframe):
     return rearranged
 
 
-def tracking_error(list_of_groups, names, out_directory):
-    total = []
-    non_zeros = []
-    # name_index = 0
-    for df in list_of_groups:
-        non_zeros.append(df.distance.astype(bool).sum(axis=0))
-        total.append(len(df.index))
-#==============================================================================
-#         group_total = []
-#         group_non_zeros = []
-#         gb = df.groupby('animal')
-#         gb.groups
-#         all_animals = pd.DataFrame()
-#         for animal in gb:
-#             temp = gb.get_group(animal)
-#             group_total.append(len(temp.index))
-#             group_non_zeros.append(temp.distance.astype(bool).sum(axis=0))
-#             current_animal = pd.DataFrame()
-#             current_animal['total'] = total
-#             current_animal['nonzeros'] = non_zeros
-#             current_animal['zeros'] = current_animal.total - current_animal.nonzeros
-#             current_animal['tracking error'] = (current_animal.zeros / current_animal.total) * 100
-#             all_animals = pd.concat([all_animals, current_animal])
-#         all_animals['condition'] = names[name_index]
-#         name_index += 1
-#==============================================================================
-    condition = pd.DataFrame()
-    condition['group'] = names
-    condition['total'] = total
-    condition['nonzeros'] = non_zeros
-    condition['zeros'] = condition.total - condition.nonzeros
-    condition['tracking error'] = (condition.zeros / condition.total) * 100
-    condition.to_csv(out_directory + 'tracking_error_per_group.csv')
-    # all_animals.to_csv(out_directory + 'tracking_error_per_animal.csv')
-    return condition
+def downsampler(dataframe, binsize, animal_number, condition):
+    df = dataframe.copy(deep=True)
+    df['frame'] = pd.date_range('1/1/2017 00:00:00', periods=df.shape[0],
+                                freq='1T')
+    df = df.set_index('frame').resample(binsize, label='right').sum().reset_index()
+    df['animal'] = animal_number
+    df['genotype'] = condition
+    return df
+
+
+def slider(dataframe, animal_number, condition, increments, binsize):
+    dff = dataframe.copy(deep=True)
+    df = pd.concat([dff['minute'], dff['distance']], axis=1)
+    x = 0
+    y = binsize
+    result = pd.DataFrame()
+    window = np.arange(0, 1500, increments)
+    for x in window:
+        first_mean = df.iloc[x:y, :].mean().to_frame().T
+        result = pd.concat([result, first_mean])
+        y += binsize
+    result['time'] = np.arange(1, 1501, increments)
+    result['animal'] = animal_number
+    result['genotype'] = condition
+    return result
+
+
+def time_spent_moving(dataframe, counter, genotype, length):
+    df = dataframe.copy(deep=True)
+    gb = df.groupby(['genotype', 'minute'])
+    gb.groups
+    time = []
+    for name, df in gb:
+        time.append(round(((df != 0).distance.sum(axis=0)), 2))
+    time_spent_moving = pd.DataFrame()
+    time_spent_moving['minute'] = np.arange(1, length * 60 + 1)
+    time_spent_moving['animal'] = counter
+    time_spent_moving['genotype'] = genotype
+    time_spent_moving['time'] = time
+    return time_spent_moving
+
+
