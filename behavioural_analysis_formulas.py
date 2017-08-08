@@ -13,25 +13,6 @@ from behavioural_analysis_script import *
 
 __author__ = 'Elena Maria Daniela Hindinger'
 
-# -*- coding: utf-8 -*-
-"""
-Created on Sat Jul 01 13:59:40 2017
-
-@author: ehindinger
-"""
-
-from __future__ import division
-import pandas as pd
-import numpy as np
-import os
-import csv
-import itertools as it
-import natsort as nat
-from matplotlib import pyplot as plt
-import matplotlib.ticker as ticker
-from scipy import stats
-import seaborn as sns
-
 
 def readin(filepath):
     ''' This function reads input data if in txt format. '''
@@ -141,5 +122,3 @@ def time_spent_moving(dataframe, counter, genotype, length):
     time_spent_moving['genotype'] = genotype
     time_spent_moving['time'] = time
     return time_spent_moving
-
-
