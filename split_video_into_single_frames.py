@@ -1,8 +1,8 @@
-__author__ = 'Elena Maria Daniela Hindinger'
-
 import numpy as np
 import cv2
 import os
+
+__author__ = 'Elena Maria Daniela Hindinger'
 
 batch_folder = r'I:/Elena H/DanioVision Preprocessing/Raw Videos' # ENTER LOCATION OF FOLDER CONTAINING ALL THE VIDEOS YOU WANT TO PROCESS
 results_directory = r'I:/Elena H/DanioVision Preprocessing'  # ENTER SAVING LOCATION
